@@ -25,12 +25,12 @@ function! s:cargo_file_parse_line(line, lnum) abort
         return [crate, vers]
       endif
     endfor
-  elseif a:line =~ '^[[:alnum:]\-_]* = "'
+  elseif a:line =~ '^[[:alnum:]\-_]* *= *"'
     " my-crate = "1.2.3"
-    return matchlist(a:line, '^\([[:alnum:]\-_]\+\) = "\([0-9.\*]\+\)"')[1:2]
+    return matchlist(a:line, '^\([[:alnum:]\-_]\+\) *= *"\([0-9.\*]\+\)"')[1:2]
   elseif a:line =~# 'version'
     " my-crate = { version = "1.2.3" }
-    return matchlist(a:line, '^\([[:alnum:]\-_]\+\) = {.*version = "\([0-9.\*]\+\)"')[1:2]
+    return matchlist(a:line, '^\([[:alnum:]\-_]\+\) *= *{.*version *= *"\([0-9.\*]\+\)"')[1:2]
   endif
   if &verbose
     echomsg 'Skipped:' a:line
@@ -123,8 +123,10 @@ function! s:show_caret(a, b) abort
     let a = str2nr(a:a[i])
     let b = str2nr(a:b[i])
     if a == 0 && b == 0 | continue | endif
-    return a < b ? 1 : 0
+    if a < b | return 1 | endif
+    "return a < b ? 1 : 0
   endfor
+  if len(a:a) < len(a:b) | return 1 | endif
   return 0
 endfunction
 
